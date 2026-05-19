@@ -85,4 +85,7 @@ public:
   float get_length(){
     return length;
   }
+  float get_acc(){
+    return acc;
+  }
 };
