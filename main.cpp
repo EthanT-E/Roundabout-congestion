@@ -1,31 +1,64 @@
 #include <iostream>
 #include <memory>
-#include <vector>
 #include <fstream>
 #include "./car.h"
 
-int main(){
-  std::unique_ptr<car> car_arr[5] = {
-    std::make_unique<car>(car(0,0,20)),
-    std::make_unique<car>(car(1,10,10)),
-    std::make_unique<car>(car(2,20,30)),
-    std::make_unique<car>(car(3,30,50)),
-    std::make_unique<car>(car(4,40,10))
+int main(int argsc, char* argsv[]){
+  std::unique_ptr<car> car_arr[2] = {
+    std::make_unique<car>(0,0,0),
+    std::make_unique<car>(1,10,30),
   };
-  
-  std::ofstream file("data.csv");
 
-  file << "time,speed 1,acc 1, speed 2, acc 2, speed 3, acc 3, speed 4, acc 4, speed 5, acc 5";
+  float dt = 0.01;
+  int runs = 1000;
 
-  for(int i = 0; i < 1000; i++){
-    car_arr[0]->move(car_arr[1]);
-    car_arr[1]->move(car_arr[2]);
-    car_arr[2]->move(car_arr[3]);
-    car_arr[3]->move(car_arr[4]);
-    car_arr[4]->move_unobstructed();
-    
-    file << i << "," << car_arr[0]->get_speed() << "," << car_arr[0]->get_acc() << ","<< car_arr[1]->get_speed() << "," << car_arr[1]->get_acc() << ","<< car_arr[2]->get_speed() << "," << car_arr[2]->get_acc() << ","<< car_arr[3]->get_speed() << "," << car_arr[3]->get_acc() << ","<< car_arr[4]->get_speed() << "," << car_arr[4]->get_acc() << "\n";
+  if (argsc == 2){
+    runs = std::atoi(argsv[1]);
   }
-  file.close();
+  
+  if (argsc == 3){
+    runs = std::atoi(argsv[1]);
+    dt = std::atof(argsv[2]);
+  }
+  std::ofstream speed_file("speed_data.csv");
+  std::ofstream acc_file("acc_data.csv");
+  std::ofstream coord_file("coord_data.csv");
+
+  speed_file << "time,speed 1,speed 2\n";
+  acc_file << "time,acc 1,acc 2\n";
+  coord_file << "time,crash,dist\n";
+
+  float time = 0;
+  for(int i = 0; i < runs; i++){
+    car_arr[0]->move(car_arr[1],dt);
+    car_arr[1]->move_unobstructed(dt);
+    time += 0.1;
+
+    speed_file << time << ",";
+    for (int i = 0; i < 2;i++){
+	 speed_file << car_arr[i]->get_speed() << ",";
+    }
+
+    acc_file << time << ",";
+    for (int i = 0; i < 2;i++){
+	 acc_file << car_arr[i]->get_acc() << ",";
+    }
+
+    coord_file << time << ",";
+    if(car_arr[0]->get_coord() < car_arr[1]->get_coord()){
+      coord_file << "Safe,";
+    }
+    else{
+      coord_file << "Crash,";
+    }
+
+    coord_file << car_arr[1]->get_coord() - car_arr[0]->get_coord() << "\n";
+
+    speed_file << "\b \n";
+    acc_file << "\b \n";
+  }
+  acc_file.close();
+  speed_file.close();
+  coord_file.close();
 
 }
