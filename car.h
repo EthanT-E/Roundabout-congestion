@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <random>
+#include <cmath>
 
 class car{
 private:
@@ -58,10 +59,11 @@ public:
 
     float ahead_speed = ahead_car->get_speed();
 
-    acc =
-	kp * (dist_to_eq - desired_gap)
-	+ kv * (ahead_speed-speed_mps);
+    acc = kp * (dist_to_eq - desired_gap) + kv * (ahead_speed-speed_mps);
 
+    if (speed_mps > (speed_limit*1.1)){
+      acc = (speed_limit - speed_mps)/(100);
+    }
 
     const float maxAccel = 4.0;
     const float maxBrake = -9.8;
@@ -80,32 +82,19 @@ public:
 
     coord += speed_mps*dt;
     total_time += dt;
-    //acc = ((ahead_speed*ahead_speed) - (speed_mps*speed_mps))/(2*dist_to_eq);//SUVAT eq without time
-
-    //acc += distro(gen)*dt;
-
-    // if(speed_mps > speed_limit){
-    //    acc = (speed_limit-speed_mps)/dt;
-    // }
-    // //max breaking of ford focus 1.5L evo
-    // if( acc < -9.8){
-    //   acc = -9.8;
-    // }
-
-    // //max accerlation of ford focus 1.5L evo
-    // if ( acc > 4.0){
-    //   acc = 4.0;
-    // }
   }
 
   void move_unobstructed(float dt = 0.1){
     coord += speed_mps*dt;
     total_time += dt;
-    //acc += distro(gen)*dt;
 
+    acc = std::sin(total_time);
+
+    /*
     if(speed_mps > speed_limit){
        acc = (speed_limit-speed_mps)/dt;
     }
+    */
 
     speed_mps += acc*dt;
 
