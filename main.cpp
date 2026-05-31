@@ -4,7 +4,10 @@
 #include "./car.h"
 
 int main(int argsc, char* argsv[]){
-  std::unique_ptr<car> car_arr[2] = {
+
+  const int CAR_NUM = 2;
+
+  std::unique_ptr<car> car_arr[CAR_NUM] = {
     std::make_unique<car>(0,0,0),
     std::make_unique<car>(1,10,30),
   };
@@ -29,18 +32,23 @@ int main(int argsc, char* argsv[]){
   coord_file << "time,crash,dist\n";
 
   float time = 0;
-  for(int i = 0; i < runs; i++){
-    car_arr[0]->move(car_arr[1],dt);
-    car_arr[1]->move_unobstructed(dt);
+
+  for(int step = 0; step < runs; step++){
+
+    for(int car_index = 0; car_index < (CAR_NUM - 1); car_index++){
+      car_arr[car_index]->move(car_arr[car_index+1],dt);
+    }
+
+    car_arr[CAR_NUM-1]->move_unobstructed(dt);
     time += 0.1;
 
     speed_file << time << ",";
-    for (int i = 0; i < 2;i++){
-	 speed_file << car_arr[i]->get_speed() << ",";
+    for (int i = 0; i < CAR_NUM;i++){
+      speed_file << car_arr[i]->get_speed() << ",";
     }
 
     acc_file << time << ",";
-    for (int i = 0; i < 2;i++){
+    for (int i = 0; i < CAR_NUM;i++){
 	 acc_file << car_arr[i]->get_acc() << ",";
     }
 
